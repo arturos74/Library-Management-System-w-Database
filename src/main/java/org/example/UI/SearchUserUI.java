@@ -1,10 +1,16 @@
 package org.example.UI;
 
+import org.example.DatabaseConnection;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SearchUserUI extends JFrame {
 
@@ -132,6 +138,34 @@ public class SearchUserUI extends JFrame {
                     "Missing Information",
                     JOptionPane.WARNING_MESSAGE);
             return;
+        }
+
+        String sql = "SELECT * FROM members WHERE id = ?";
+
+
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,search);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()) {
+                String memberId = rs.getString("id");
+
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Member not found",
+                        "Not Found",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 

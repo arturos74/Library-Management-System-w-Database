@@ -35,8 +35,7 @@ public class MainMenuUI extends JFrame {
         JButton modifyBooksButton = new JButton("Modify Books");
         JButton rentBookButton = new JButton("Rent Book");
         JButton returnBookButton = new JButton("Return Book");
-        JButton addUserButton = new JButton("Add User");
-        JButton removeUserButton = new JButton("Remove User");
+        JButton modifyUsers = new JButton("Modify Users");
         JButton viewBooksButton = new JButton("View All Books");
         JButton viewUsersButton = new JButton("View All Users");
         JButton viewRentalsButton = new JButton("View Rentals");
@@ -47,8 +46,7 @@ public class MainMenuUI extends JFrame {
         actionPanel.add(modifyBooksButton);
         actionPanel.add(rentBookButton);
         actionPanel.add(returnBookButton);
-        actionPanel.add(addUserButton);
-        actionPanel.add(removeUserButton);
+        actionPanel.add(modifyUsers);
         actionPanel.add(viewBooksButton);
         actionPanel.add(viewUsersButton);
         actionPanel.add(viewRentalsButton);
@@ -66,6 +64,10 @@ public class MainMenuUI extends JFrame {
             BookManagementUI bookManagementUI = new BookManagementUI();
             this.dispose();
         });
+        modifyUsers.addActionListener(e -> {
+            UserManagementUI userManagementUI = new UserManagementUI();
+            this.dispose();
+        });
         logoutButton.addActionListener(e -> {
             LoginUI loginUI = new LoginUI();
             this.dispose();
@@ -81,5 +83,9 @@ public class MainMenuUI extends JFrame {
 
         add(mainPanel);
         setVisible(true);
+    }
+
+    public static void main (String[] args) {
+        MainMenuUI mainMenuUI = new MainMenuUI();
     }
 }

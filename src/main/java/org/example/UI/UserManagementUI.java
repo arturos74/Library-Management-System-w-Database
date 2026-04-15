@@ -12,12 +12,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BookManagementUI extends JFrame {
+public class UserManagementUI extends JFrame {
 
     private JTextField idField;
-    private JTextField titleField;
-    private JTextField authorField;
-    private JTextField isbnField;
+    private JTextField nameField;
+    private JTextField emailField;
+    private JTextField passwordField;
 
     private JButton addButton;
     private JButton updateButton;
@@ -25,11 +25,11 @@ public class BookManagementUI extends JFrame {
     private JButton clearButton;
     private JButton backButton;
 
-    private JTable bookTable;
+    private JTable userTable;
     private DefaultTableModel tableModel;
 
-    public BookManagementUI() {
-        setTitle("Modify Books");
+    public UserManagementUI() {
+        setTitle("Modify Users");
         setSize(1000, 650);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -38,7 +38,7 @@ public class BookManagementUI extends JFrame {
         mainPanel.setBackground(new Color(230, 230, 230));
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        JLabel titleLabel = new JLabel("Modify Books");
+        JLabel titleLabel = new JLabel("Modify Users");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 30));
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
@@ -49,7 +49,7 @@ public class BookManagementUI extends JFrame {
         formPanel.setBackground(new Color(240, 240, 240));
         formPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY),
-                "Book Details",
+                "User Details",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 16)
@@ -58,32 +58,32 @@ public class BookManagementUI extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(12, 12, 12, 12);
 
-        JLabel idLabel = new JLabel("Book ID:");
-        JLabel titleFieldLabel = new JLabel("Title:");
-        JLabel authorLabel = new JLabel("Author:");
-        JLabel isbnLabel = new JLabel("ISBN:");
+        JLabel idFieldLabel = new JLabel("User ID:");
+        JLabel nameFieldLabel = new JLabel("Name:");
+        JLabel emailFieldLabel = new JLabel("Email:");
+        JLabel passwordFieldLabel = new JLabel("Password:");
 
         Font labelFont = new Font("Arial", Font.PLAIN, 16);
-        idLabel.setFont(labelFont);
-        titleFieldLabel.setFont(labelFont);
-        authorLabel.setFont(labelFont);
-        isbnLabel.setFont(labelFont);
+        idFieldLabel.setFont(labelFont);
+        nameFieldLabel.setFont(labelFont);
+        emailFieldLabel.setFont(labelFont);
+        passwordFieldLabel.setFont(labelFont);
 
         idField = new JTextField(18);
-        titleField = new JTextField(18);
-        authorField = new JTextField(18);
-        isbnField = new JTextField(18);
+        nameField = new JTextField(18);
+        emailField = new JTextField(18);
+        passwordField = new JTextField(18);
 
         Dimension fieldSize = new Dimension(220, 32);
         idField.setPreferredSize(fieldSize);
-        titleField.setPreferredSize(fieldSize);
-        authorField.setPreferredSize(fieldSize);
-        isbnField.setPreferredSize(fieldSize);
+        nameField.setPreferredSize(fieldSize);
+        emailField.setPreferredSize(fieldSize);
+        passwordField.setPreferredSize(fieldSize);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
-        formPanel.add(idLabel, gbc);
+        formPanel.add(idFieldLabel, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
@@ -91,35 +91,35 @@ public class BookManagementUI extends JFrame {
 
         gbc.gridx = 2;
         gbc.anchor = GridBagConstraints.EAST;
-        formPanel.add(titleFieldLabel, gbc);
+        formPanel.add(nameFieldLabel, gbc);
 
         gbc.gridx = 3;
         gbc.anchor = GridBagConstraints.WEST;
-        formPanel.add(titleField, gbc);
+        formPanel.add(nameField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
-        formPanel.add(authorLabel, gbc);
+        formPanel.add(emailFieldLabel, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        formPanel.add(authorField, gbc);
+        formPanel.add(emailField, gbc);
 
         gbc.gridx = 2;
         gbc.anchor = GridBagConstraints.EAST;
-        formPanel.add(isbnLabel, gbc);
+        formPanel.add(passwordFieldLabel, gbc);
 
         gbc.gridx = 3;
         gbc.anchor = GridBagConstraints.WEST;
-        formPanel.add(isbnField, gbc);
+        formPanel.add(passwordField, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 5));
         buttonPanel.setBackground(new Color(240, 240, 240));
 
-        addButton = new JButton("Add Book");
-        updateButton = new JButton("Update Book");
-        removeButton = new JButton("Remove Book");
+        addButton = new JButton("Add User");
+        updateButton = new JButton("Update User");
+        removeButton = new JButton("Remove User");
         clearButton = new JButton("Clear Fields");
 
         Dimension buttonSize = new Dimension(130, 35);
@@ -140,7 +140,7 @@ public class BookManagementUI extends JFrame {
 
         centerPanel.add(topSection, BorderLayout.NORTH);
 
-        String[] columns = {"Book ID", "Title", "Author", "ISBN", "Available"};
+        String[] columns = {"User ID", "Name", "Email", "Password"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -148,15 +148,15 @@ public class BookManagementUI extends JFrame {
             }
         };
 
-        bookTable = new JTable(tableModel);
-        bookTable.setRowHeight(25);
-        bookTable.setFont(new Font("Arial", Font.PLAIN, 13));
-        bookTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        userTable = new JTable(tableModel);
+        userTable.setRowHeight(25);
+        userTable.setFont(new Font("Arial", Font.PLAIN, 13));
+        userTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
 
-        JScrollPane scrollPane = new JScrollPane(bookTable);
+        JScrollPane scrollPane = new JScrollPane(userTable);
         scrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY),
-                "Book Records",
+                "User Records",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 16)
@@ -171,46 +171,45 @@ public class BookManagementUI extends JFrame {
 
         backButton = new JButton("Back");
         backButton.setPreferredSize(new Dimension(100, 35));
+        bottomPanel.add(backButton);
+
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        addButton.addActionListener(e -> {
+            addMember();
+            tableModel.setRowCount(0);
+            loadMembers();
+        });
+
         backButton.addActionListener(e -> {
             MainMenuUI mainMenuUI = new MainMenuUI();
             this.dispose();
         });
-        bottomPanel.add(backButton);
 
-        addButton.addActionListener(e -> {
-            addBook();
-            tableModel.setRowCount(0);
-            loadBooks();
-        });
-
-        loadBooks();
-
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        loadMembers();
 
         add(mainPanel);
         setVisible(true);
     }
 
-    private void loadBooks() {
-        String sql = "SELECT * FROM books";
+    private void loadMembers() {
+        String sql = "SELECT * FROM members";
 
 
         try(Connection conn = DatabaseConnection.connect();
-        PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
 
             while(rs.next()) {
-                String bookId = rs.getString("id");
-                String title = rs.getString("title");
-                String author = rs.getString("author");
-                String isbn = rs.getString("isbn");
-                int available = rs.getInt("available");
+                String memberId = rs.getString("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String password = rs.getString("password");
 
                 tableModel.addRow(new Object[]{
-                        bookId,
-                        title,
-                        author,
-                        isbn,
-                        available == 1 ? "Yes" : "No"
+                        memberId,
+                        name,
+                        email,
+                        password
                 });
             }
 
@@ -223,38 +222,7 @@ public class BookManagementUI extends JFrame {
         }
     }
 
-    private void addBook() {
-        String bookId = idField.getText().trim();
-        String title = titleField.getText();
-        String author = authorField.getText();
-        String isbn = isbnField.getText();
+    private void addMember() {
 
-        if(bookId.isEmpty() || title.isEmpty() || author.isEmpty() || isbn.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "1 or More Fields are Empty",
-                    "Missing Info",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String sql = "INSERT INTO books (id, title, author, isbn, available) VALUES (?, ?, ?, ?, 1)";
-
-        try(Connection conn = DatabaseConnection.connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1,bookId);
-            pstmt.setString(2,title);
-            pstmt.setString(3,author);
-            pstmt.setString(4,isbn);
-
-            pstmt.executeUpdate();
-
-        } catch(SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Database error: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
     }
 }

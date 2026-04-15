@@ -181,6 +181,25 @@ public class UserManagementUI extends JFrame {
             loadMembers();
         });
 
+        updateButton.addActionListener(e -> {
+           updateMember();
+           tableModel.setRowCount(0);
+           loadMembers();
+        });
+
+        removeButton.addActionListener(e -> {
+            removeMember();
+            tableModel.setRowCount(0);
+            loadMembers();
+        });
+
+        clearButton.addActionListener(e -> {
+            idField.setText("");
+            nameField.setText("");
+            emailField.setText("");
+            passwordField.setText("");
+        });
+
         backButton.addActionListener(e -> {
             MainMenuUI mainMenuUI = new MainMenuUI();
             this.dispose();
@@ -249,6 +268,58 @@ public class UserManagementUI extends JFrame {
             pstmt.executeUpdate();
 
         } catch(SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void updateMember() {
+        String memberId = idField.getText().trim();
+        String name = nameField.getText();
+        String email = emailField.getText();
+        String password = passwordField.getText();
+
+        if(memberId.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "1 or More Fields are Empty",
+                    "Missing Info",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String sql = "UPDATE members SET name=?, email=?, password=? WHERE id=?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1,name);
+            pstmt.setString(2,email);
+            pstmt.setString(3,password);
+            pstmt.setString(4,memberId);
+
+            pstmt.executeUpdate();
+
+        } catch(SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void removeMember() {
+        String memberId = idField.getText().trim();
+        String sql = "DELETE FROM members WHERE id=?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1,memberId);
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                     "Database error: " + e.getMessage(),
                     "Error",

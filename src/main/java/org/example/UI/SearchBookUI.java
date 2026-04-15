@@ -1,5 +1,6 @@
 package org.example.UI;
 
+import org.example.DatabaseConnection;
 import org.example.Main;
 
 import javax.swing.*;
@@ -7,6 +8,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class SearchBookUI extends JFrame {
 
@@ -104,6 +108,10 @@ public class SearchBookUI extends JFrame {
                 new Font("Arial", Font.BOLD, 16)
         ));
 
+        searchButton.addActionListener(e -> {
+            searchBook();
+        });
+
         backButton.addActionListener(e -> {
             this.dispose();
             MainMenuUI mainMenuUI = new MainMenuUI();
@@ -123,7 +131,23 @@ public class SearchBookUI extends JFrame {
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(SearchBookUI::new);
+    private void searchBook() {
+        String bookId = searchField.getText();
+
+        String sql = "SELECT * FROM books WHERE id = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,bookId);
+
+            pstmt.executeQuery();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 }

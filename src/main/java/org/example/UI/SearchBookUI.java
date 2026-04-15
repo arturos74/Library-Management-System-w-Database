@@ -1,7 +1,6 @@
 package org.example.UI;
 
 import org.example.DatabaseConnection;
-import org.example.Main;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,12 +9,15 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SearchBookUI extends JFrame {
 
     private JTextField searchField;
-    private JButton searchButton;
+    private JButton searchIdButton;
+    private JButton searchTitleButton;
+    private JButton searchAuthorButton;
     private JButton clearButton;
     private JButton backButton;
     private JTable resultsTable;
@@ -57,11 +59,15 @@ public class SearchBookUI extends JFrame {
         searchField = new JTextField(25);
         searchField.setPreferredSize(new Dimension(300, 35));
 
-        searchButton = new JButton("Search");
+        searchIdButton = new JButton("Search ID");
+        searchTitleButton = new JButton("Search Title");
+        searchAuthorButton = new JButton("Search Author");
         clearButton = new JButton("Clear");
         backButton = new JButton("Back");
 
-        searchButton.setPreferredSize(new Dimension(110, 35));
+        searchIdButton.setPreferredSize(new Dimension(110, 35));
+        searchTitleButton.setPreferredSize(new Dimension(110, 35));
+        searchAuthorButton.setPreferredSize(new Dimension(110, 35));
         clearButton.setPreferredSize(new Dimension(110, 35));
         backButton.setPreferredSize(new Dimension(110, 35));
 
@@ -76,7 +82,9 @@ public class SearchBookUI extends JFrame {
 
         JPanel searchButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         searchButtonPanel.setBackground(new Color(240, 240, 240));
-        searchButtonPanel.add(searchButton);
+        searchButtonPanel.add(searchIdButton);
+        searchButtonPanel.add(searchTitleButton);
+        searchButtonPanel.add(searchAuthorButton);
         searchButtonPanel.add(clearButton);
 
         gbc.gridx = 1;
@@ -108,8 +116,24 @@ public class SearchBookUI extends JFrame {
                 new Font("Arial", Font.BOLD, 16)
         ));
 
-        searchButton.addActionListener(e -> {
+        searchIdButton.addActionListener(e -> {
+            tableModel.setRowCount(0);
             searchBook();
+        });
+
+        searchTitleButton.addActionListener(e -> {
+            tableModel.setRowCount(0);
+            searchTitle();
+        });
+
+        searchAuthorButton.addActionListener(e -> {
+            tableModel.setRowCount(0);
+            searchAuthor();
+        });
+
+        clearButton.addActionListener(e -> {
+            searchField.setText("");
+            tableModel.setRowCount(0);
         });
 
         backButton.addActionListener(e -> {
@@ -141,7 +165,23 @@ public class SearchBookUI extends JFrame {
 
             pstmt.setString(1,bookId);
 
-            pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()){
+                String id = rs.getString("id");
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String isbn = rs.getString("isbn");
+                int available = rs.getInt("available");
+
+                tableModel.addRow(new Object[]{
+                        id,
+                        title,
+                        author,
+                        isbn,
+                        available == 1 ? "Yes" : "No"
+                });
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                     "Database error: " + e.getMessage(),
@@ -149,5 +189,71 @@ public class SearchBookUI extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
+    }
+
+    private void searchTitle() {
+        String titleSearch = searchField.getText();
+        String sql = "SELECT * FROM books WHERE title = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,titleSearch);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()){
+                String id = rs.getString("id");
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String isbn = rs.getString("isbn");
+                int available = rs.getInt("available");
+
+                tableModel.addRow(new Object[]{
+                        id,
+                        title,
+                        author,
+                        isbn,
+                        available == 1 ? "Yes" : "No"
+                });
+            }
+
+        } catch(SQLException e) {
+
+        }
+    }
+
+    private void searchAuthor() {
+        String author = searchField.getText();
+
+        String sql = "SELECT * FROM books WHERE author = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,author);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()){
+                String id = rs.getString("id");
+                String title = rs.getString("title");
+                String authorName = rs.getString("author");
+                String isbn = rs.getString("isbn");
+                int available = rs.getInt("available");
+
+                tableModel.addRow(new Object[]{
+                        id,
+                        title,
+                        author,
+                        isbn,
+                        available == 1 ? "Yes" : "No"
+                });
+            }
+
+        } catch (SQLException e) {
+
+        }
+
     }
 }

@@ -14,6 +14,9 @@ import java.sql.SQLException;
 
 public class SearchUserUI extends JFrame {
 
+    private JLabel idLabel;
+    private JLabel nameLabel;
+    private JLabel emailLabel;
     private JTextField searchField;
     private JButton searchButton;
     private JButton clearButton;
@@ -23,7 +26,7 @@ public class SearchUserUI extends JFrame {
 
     public SearchUserUI() {
         setTitle("Search Users");
-        setSize(900, 550);
+        setSize(900, 650);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -38,6 +41,10 @@ public class SearchUserUI extends JFrame {
         JPanel centerPanel = new JPanel(new BorderLayout(15, 15));
         centerPanel.setBackground(new Color(230, 230, 230));
 
+        JPanel topSectionPanel = new JPanel();
+        topSectionPanel.setLayout(new BoxLayout(topSectionPanel, BoxLayout.Y_AXIS));
+        topSectionPanel.setBackground(new Color(230, 230, 230));
+
         JPanel searchPanel = new JPanel(new GridBagLayout());
         searchPanel.setBackground(new Color(240, 240, 240));
         searchPanel.setBorder(BorderFactory.createTitledBorder(
@@ -51,7 +58,11 @@ public class SearchUserUI extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 15, 15, 15);
 
-        JLabel searchLabel = new JLabel("Enter Name / ID / Email:");
+        idLabel = new JLabel("ID: ");
+        nameLabel = new JLabel("Name: ");
+        emailLabel = new JLabel("Email: ");
+
+        JLabel searchLabel = new JLabel("Enter ID / Email:");
         searchLabel.setFont(new Font("Arial", Font.PLAIN, 18));
 
         searchField = new JTextField(25);
@@ -84,9 +95,42 @@ public class SearchUserUI extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         searchPanel.add(searchButtonPanel, gbc);
 
-        centerPanel.add(searchPanel, BorderLayout.NORTH);
+        JPanel userInfoPanel = new JPanel(new GridBagLayout());
+        userInfoPanel.setBackground(new Color(240, 240, 240));
+        userInfoPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY),
+                "Member Information",
+                TitledBorder.LEFT,
+                TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 16)
+        ));
 
-        String[] columnNames = {"User ID", "Name", "Email"};
+        GridBagConstraints infoGbc = new GridBagConstraints();
+        infoGbc.insets = new Insets(10, 15, 10, 15);
+        infoGbc.anchor = GridBagConstraints.WEST;
+
+        Font infoFont = new Font("Arial", Font.PLAIN, 16);
+        idLabel.setFont(infoFont);
+        nameLabel.setFont(infoFont);
+        emailLabel.setFont(infoFont);
+
+        infoGbc.gridx = 0;
+        infoGbc.gridy = 0;
+        userInfoPanel.add(idLabel, infoGbc);
+
+        infoGbc.gridy = 1;
+        userInfoPanel.add(nameLabel, infoGbc);
+
+        infoGbc.gridy = 2;
+        userInfoPanel.add(emailLabel, infoGbc);
+
+        topSectionPanel.add(searchPanel);
+        topSectionPanel.add(Box.createVerticalStrut(15));
+        topSectionPanel.add(userInfoPanel);
+
+        centerPanel.add(topSectionPanel, BorderLayout.NORTH);
+
+        String[] columnNames = {"Book ID", "Title", "Author", "ISBN", "Borrow Date"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -102,13 +146,27 @@ public class SearchUserUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(resultsTable);
         scrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY),
-                "Search Results",
+                "Rented Books",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 16)
         ));
 
-        searchButton.addActionListener(e -> {searchUser();});
+        searchButton.addActionListener(e -> {
+            if (searchField.getText().contains("@")) {
+                searchEmail();
+            } else {
+                searchUser();
+            }
+        });
+
+        clearButton.addActionListener(e -> {
+            searchField.setText("");
+            tableModel.setRowCount(0);
+            idLabel.setText("ID: ");
+            nameLabel.setText("Name: ");
+            emailLabel.setText("Email: ");
+        });
 
         backButton.addActionListener(e -> {
             MainMenuUI mainMenuUI = new MainMenuUI();
@@ -116,7 +174,6 @@ public class SearchUserUI extends JFrame {
         });
 
         centerPanel.add(scrollPane, BorderLayout.CENTER);
-
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -152,6 +209,15 @@ public class SearchUserUI extends JFrame {
 
             if(rs.next()) {
                 String memberId = rs.getString("id");
+                String memberName = rs.getString("name");
+                String memberEmail = rs.getString("email");
+
+                idLabel.setText("ID: " + memberId);
+                nameLabel.setText("Name: " + memberName);
+                emailLabel.setText("Email: " + memberEmail);
+
+                loadRentedBooks(memberId);
+
 
             } else {
                 JOptionPane.showMessageDialog(this,
@@ -169,5 +235,94 @@ public class SearchUserUI extends JFrame {
         }
     }
 
+    private void searchEmail() {
+        String search = searchField.getText().trim();
+
+        if (search.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter search criteria",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String sql = "SELECT * FROM members WHERE email = ?";
+
+
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,search);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()) {
+                String memberId = rs.getString("id");
+                String memberName = rs.getString("name");
+                String memberEmail = rs.getString("email");
+
+                idLabel.setText("ID: " + memberId);
+                nameLabel.setText("Name: " + memberName);
+                emailLabel.setText("Email: " + memberEmail);
+
+                loadRentedBooks(memberId);
+
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Member not found",
+                        "Not Found",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void loadRentedBooks(String memberId) {
+        tableModel.setRowCount(0);
+
+        String sql = """
+            SELECT books.id, books.title, books.author, books.isbn, loans.borrow_date
+            FROM loans
+            JOIN books ON loans.book_id = books.id
+            WHERE loans.member_id = ? AND loans.returned = 0
+            """;
+
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, memberId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String bookId = rs.getString("id");
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String isbn = rs.getString("isbn");
+                String borrowDate = rs.getString("borrow_date");
+
+                tableModel.addRow(new Object[]{
+                        bookId,
+                        title,
+                        author,
+                        isbn,
+                        borrowDate
+                });
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
 
 }

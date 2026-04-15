@@ -183,6 +183,25 @@ public class BookManagementUI extends JFrame {
             loadBooks();
         });
 
+        updateButton.addActionListener(e -> {
+            updateBook();
+            tableModel.setRowCount(0);
+            loadBooks();
+        });
+
+        removeButton.addActionListener(e -> {
+            removeBook();
+            tableModel.setRowCount(0);
+            loadBooks();
+        });
+
+        clearButton.addActionListener(e -> {
+            idField.setText("");
+            titleField.setText("");
+            authorField.setText("");
+            isbnField.setText("");
+        });
+
         loadBooks();
 
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -257,4 +276,67 @@ public class BookManagementUI extends JFrame {
             e.printStackTrace();
         }
     }
+
+    private void removeBook() {
+        String bookId = idField.getText().trim();
+
+        if(bookId.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "ID Field is Empty",
+                    "Missing Info",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String sql = "DELETE FROM books WHERE id = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1,bookId);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void updateBook() {
+        String bookId = idField.getText().trim();
+        String title = titleField.getText();
+        String author = authorField.getText();
+        String isbn = isbnField.getText();
+
+        if(bookId.isEmpty() || title.isEmpty() || author.isEmpty() || isbn.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "1 or More Fields are Missing",
+                    "Missing Info",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String sql = "UPDATE books SET title = ?, author = ?, isbn = ? WHERE id = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1,title);
+            pstmt.setString(2,author);
+            pstmt.setString(3,isbn);
+            pstmt.setString(4,bookId);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
 }

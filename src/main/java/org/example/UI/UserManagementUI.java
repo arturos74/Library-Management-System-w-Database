@@ -223,6 +223,37 @@ public class UserManagementUI extends JFrame {
     }
 
     private void addMember() {
+        String memberId = idField.getText().trim();
+        String name = nameField.getText();
+        String email = emailField.getText();
+        String password = passwordField.getText();
 
+        if(memberId.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "1 or More Fields are Empty",
+                    "Missing Info",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String sql = "INSERT INTO members (id, name, email, password) VALUES (?, ?, ?, ?)";
+
+        try(Connection conn = DatabaseConnection.connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,memberId);
+            pstmt.setString(2,name);
+            pstmt.setString(3,email);
+            pstmt.setString(4,password);
+
+            pstmt.executeUpdate();
+
+        } catch(SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 }

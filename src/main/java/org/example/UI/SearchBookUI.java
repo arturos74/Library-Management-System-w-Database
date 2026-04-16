@@ -202,7 +202,7 @@ public class SearchBookUI extends JFrame {
 
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
+            while(rs.next()){
                 String id = rs.getString("id");
                 String title = rs.getString("title");
                 String author = rs.getString("author");
@@ -219,7 +219,11 @@ public class SearchBookUI extends JFrame {
             }
 
         } catch(SQLException e) {
-
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -235,7 +239,7 @@ public class SearchBookUI extends JFrame {
 
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
+            while(rs.next()){
                 String id = rs.getString("id");
                 String title = rs.getString("title");
                 String authorName = rs.getString("author");
@@ -252,7 +256,11 @@ public class SearchBookUI extends JFrame {
             }
 
         } catch (SQLException e) {
-
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
 
     }

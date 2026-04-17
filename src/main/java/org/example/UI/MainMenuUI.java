@@ -33,9 +33,9 @@ public class MainMenuUI extends JFrame {
         JButton searchBookButton = new JButton("Search Book");
         JButton searchUserButton = new JButton("Search User");
         JButton modifyBooksButton = new JButton("Modify Books");
+        JButton modifyUsers = new JButton("Modify Users");
         JButton rentBookButton = new JButton("Rent Book");
         JButton returnBookButton = new JButton("Return Book");
-        JButton modifyUsers = new JButton("Modify Users");
         JButton viewBooksButton = new JButton("View All Books");
         JButton viewUsersButton = new JButton("View All Users");
         JButton viewRentalsButton = new JButton("View Rentals");
@@ -44,9 +44,9 @@ public class MainMenuUI extends JFrame {
         actionPanel.add(searchBookButton);
         actionPanel.add(searchUserButton);
         actionPanel.add(modifyBooksButton);
+        actionPanel.add(modifyUsers);
         actionPanel.add(rentBookButton);
         actionPanel.add(returnBookButton);
-        actionPanel.add(modifyUsers);
         actionPanel.add(viewBooksButton);
         actionPanel.add(viewUsersButton);
         actionPanel.add(viewRentalsButton);

@@ -68,6 +68,10 @@ public class MainMenuUI extends JFrame {
             UserManagementUI userManagementUI = new UserManagementUI();
             this.dispose();
         });
+        rentBookButton.addActionListener(e -> {
+            RentBookUI rentBookUI = new RentBookUI();
+            this.dispose();
+        });
         logoutButton.addActionListener(e -> {
             LoginUI loginUI = new LoginUI();
             this.dispose();

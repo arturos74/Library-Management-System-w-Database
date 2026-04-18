@@ -1,18 +1,26 @@
 package org.example.UI;
 
+import org.example.DatabaseConnection;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class RentBookUI extends JFrame {
 
     private JTextField memberIdField;
     private JTextField bookIdField;
 
+    private JLabel memberIdDisplayLabel;
     private JLabel memberNameLabel;
     private JLabel memberEmailLabel;
+    private JLabel bookIdDisplayLabel;
     private JLabel bookTitleLabel;
     private JLabel bookAuthorLabel;
     private JLabel bookAvailabilityLabel;
@@ -120,7 +128,7 @@ public class RentBookUI extends JFrame {
         memberGbc.insets = new Insets(10, 15, 10, 15);
         memberGbc.anchor = GridBagConstraints.WEST;
 
-        JLabel memberIdDisplayLabel = new JLabel("Member ID: ");
+        memberIdDisplayLabel = new JLabel("Member ID: ");
         memberNameLabel = new JLabel("Name: ");
         memberEmailLabel = new JLabel("Email: ");
 
@@ -152,7 +160,7 @@ public class RentBookUI extends JFrame {
         bookGbc.insets = new Insets(10, 15, 10, 15);
         bookGbc.anchor = GridBagConstraints.WEST;
 
-        JLabel bookIdDisplayLabel = new JLabel("Book ID: ");
+        bookIdDisplayLabel = new JLabel("Book ID: ");
         bookTitleLabel = new JLabel("Title: ");
         bookAuthorLabel = new JLabel("Author: ");
         bookAvailabilityLabel = new JLabel("Available: ");
@@ -232,9 +240,54 @@ public class RentBookUI extends JFrame {
         backButton.setPreferredSize(new Dimension(100, 35));
         bottomPanel.add(backButton);
 
+        searchMemberButton.addActionListener(e -> {
+            searchMember();
+        });
+
+        backButton.addActionListener(e -> {
+            MainMenuUI mainMenuUI = new MainMenuUI();
+            this.dispose();
+        });
+
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
+    }
+
+    private void searchMember() {
+        String memberId = memberIdField.getText();
+
+        if(memberId.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter search criteria",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String sql = "SELECT * FROM members WHERE id = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,memberId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()) {
+                int available;
+
+                memberIdDisplayLabel.setText("Member ID: " + rs.getString("id"));
+                memberNameLabel.setText("Name: " + rs.getString("name"));
+                memberEmailLabel.setText("Email: " + rs.getString("email"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 }

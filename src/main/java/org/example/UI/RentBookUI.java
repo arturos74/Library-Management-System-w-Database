@@ -244,6 +244,10 @@ public class RentBookUI extends JFrame {
             searchMember();
         });
 
+        searchBookButton.addActionListener(e -> {
+            searchBook();
+        });
+
         backButton.addActionListener(e -> {
             MainMenuUI mainMenuUI = new MainMenuUI();
             this.dispose();
@@ -282,6 +286,42 @@ public class RentBookUI extends JFrame {
                 memberNameLabel.setText("Name: " + rs.getString("name"));
                 memberEmailLabel.setText("Email: " + rs.getString("email"));
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void searchBook() {
+        String bookId = bookIdField.getText();
+
+        if(bookId.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter search criteria",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String sql = "SELECT * FROM books WHERE id = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,bookId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()) {
+                bookIdDisplayLabel.setText("Book ID: " + rs.getString("id"));
+                bookTitleLabel.setText("Title: " + rs.getString("title"));
+                bookAuthorLabel.setText("Author: " + rs.getString("author"));
+                bookAvailabilityLabel.setText("Available: " + rs.getInt("available"));
+            }
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                     "Database error: " + e.getMessage(),

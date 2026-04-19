@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class RentBookUI extends JFrame {
 
@@ -248,6 +249,10 @@ public class RentBookUI extends JFrame {
             searchBook();
         });
 
+        rentButton.addActionListener(e -> {
+           rentBook();
+        });
+
         backButton.addActionListener(e -> {
             MainMenuUI mainMenuUI = new MainMenuUI();
             this.dispose();
@@ -330,4 +335,43 @@ public class RentBookUI extends JFrame {
             e.printStackTrace();
         }
     }
+
+    private void rentBook() {
+        String memberId = memberIdField.getText();
+        String bookId = bookIdField.getText();
+        LocalDate today = LocalDate.now();
+
+        if(memberId.isEmpty() || bookId.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter search criteria",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String sql = "INSERT INTO loans (member_id, book_id, borrow_date, returned) VALUES (?,?,?,0)";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1,memberId);
+            pstmt.setString(2,bookId);
+            pstmt.setString(3, today.toString());
+
+            pstmt.executeQuery(sql);
+
+            JOptionPane.showMessageDialog(this,
+                    bookTitleLabel.getText() + " has been rented to " + memberIdField.getText(),
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
 }

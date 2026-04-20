@@ -72,6 +72,10 @@ public class MainMenuUI extends JFrame {
             RentBookUI rentBookUI = new RentBookUI();
             this.dispose();
         });
+        returnBookButton.addActionListener(e -> {
+            ReturnBookUI returnBookUI = new ReturnBookUI();
+            this.dispose();
+        });
         logoutButton.addActionListener(e -> {
             LoginUI loginUI = new LoginUI();
             this.dispose();

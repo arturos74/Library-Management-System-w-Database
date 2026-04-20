@@ -353,6 +353,55 @@ public class RentBookUI extends JFrame {
             return;
         }
 
+        //Check if the book is checked out
+        String condition = "SELECT * FROM books WHERE id=?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(condition)) {
+
+            pstmt.setString(1,bookId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.getInt("available") == 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Book Unavailable",
+                        "Book Not Available",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+
+            return;
+        }
+
+        //Rent out book in books table
+        String script = "UPDATE books SET available = 0 WHERE id = ?";
+
+        try(Connection conn = DatabaseConnection.connect();
+        PreparedStatement pstmt = conn.prepareStatement(script)) {
+            pstmt.setString(1,bookId);
+
+            pstmt.executeUpdate();
+
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+
+            return;
+        }
+
+        //Rent out Book
         String sql = "INSERT INTO loans (member_id, book_id, borrow_date, returned) VALUES (?,?,?,0)";
 
         try(Connection conn = DatabaseConnection.connect();
@@ -375,6 +424,8 @@ public class RentBookUI extends JFrame {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
+
+            return;
         }
     }
 

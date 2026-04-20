@@ -251,12 +251,16 @@ public class RentBookUI extends JFrame {
 
         rentButton.addActionListener(e -> {
            rentBook();
+           tableModel.setRowCount(0);
+           loadCurrentlyRentedBooks();
         });
 
         backButton.addActionListener(e -> {
             MainMenuUI mainMenuUI = new MainMenuUI();
             this.dispose();
         });
+
+        loadCurrentlyRentedBooks();
 
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -358,12 +362,51 @@ public class RentBookUI extends JFrame {
             pstmt.setString(2,bookId);
             pstmt.setString(3, today.toString());
 
-            pstmt.executeQuery(sql);
+            pstmt.executeUpdate();
 
             JOptionPane.showMessageDialog(this,
                     bookTitleLabel.getText() + " has been rented to " + memberIdField.getText(),
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void loadCurrentlyRentedBooks() {
+        tableModel.setRowCount(0);
+
+        String sql = """
+            SELECT books.id, books.title, books.author, books.isbn, loans.borrow_date
+            FROM loans
+            JOIN books ON loans.book_id = books.id
+            WHERE loans.returned = 0
+            """;
+
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                String bookId = rs.getString("id");
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String isbn = rs.getString("isbn");
+                String borrowDate = rs.getString("borrow_date");
+
+                tableModel.addRow(new Object[]{
+                        bookId,
+                        title,
+                        author,
+                        isbn,
+                        borrowDate
+                });
+            }
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
